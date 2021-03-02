@@ -1,0 +1,26 @@
+# @package _global_
+
+# Currently one of the better performing configs on zinc-subset
+
+model:
+  num_layers: 5
+  num_channels: 128
+  bottleneck: True
+
+  cycle_depth: 2
+  path_depth: 2
+
+  cycle_lengths:
+  - 5
+  - 6
+
+  path_lengths:
+  - 3
+  - 4
+  - 5
+  - 6
+
+optim:
+  learning_rate: 0.0003
+
+batch_size: 256

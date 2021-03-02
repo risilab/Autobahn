@@ -1,0 +1,14 @@
+# @package _global_
+
+data:
+  use_subset: True
+  data_folder: ./data/zinc/
+
+optim:
+  lr_warmup_epochs: 15
+  lr_decay_milestones:
+  - 150
+  - 300
+
+max_epochs: 600
+mixed_precision: True

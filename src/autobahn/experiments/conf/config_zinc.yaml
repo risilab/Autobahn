@@ -1,0 +1,3 @@
+defaults:
+  - dataset: zinc_subset
+  - model: subset_128

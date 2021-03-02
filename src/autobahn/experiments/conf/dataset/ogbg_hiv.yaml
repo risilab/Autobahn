@@ -1,0 +1,12 @@
+# @package _global_
+
+data:
+  data_folder: ./data/ogb
+  data_name: ogbg-molhiv
+
+optim:
+  lr_warmup_epochs: 15
+  lr_decay_milestones: []
+
+max_epochs: 60
+mixed_precision: False

@@ -1,0 +1,13 @@
+# @package _global_
+
+data:
+  data_folder: ./data/ogb
+  data_name: ogbg-molpcba
+
+optim:
+  lr_warmup_epochs: 5
+  lr_decay_milestones:
+  - 35
+
+max_epochs: 50
+mixed_precision: True

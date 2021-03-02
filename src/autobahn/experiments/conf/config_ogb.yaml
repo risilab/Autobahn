@@ -1,0 +1,3 @@
+defaults:
+  - dataset: ogbg_hiv
+  - model: subset_128

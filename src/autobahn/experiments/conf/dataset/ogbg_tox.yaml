@@ -1,0 +1,13 @@
+# @package _global_
+
+data:
+  data_folder: ./data/ogb
+  data_name: ogbg-moltox21
+
+optim:
+  lr_warmup_epochs: 5
+  lr_decay_milestones:
+  - 40
+  - 80
+
+max_epochs: 150
