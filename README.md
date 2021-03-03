@@ -1,7 +1,7 @@
 Overview
 ========
 
-This repository code for the paper [Autobahn: Automorphism-based Graph Neural Network](https://arxiv.org/abs/2103.01710)
+This repository code for the paper [Autobahn: Automorphism-based Graph Neural Network](https://arxiv.org/abs/2103.01710).
 In contrast to most graph neural networks where neurons are associated with individual graph vertices,
 in Autobahn neurons correspond to subgraphs.
 Each neuron then applies convolutions that are equivariant to each subgraph's automorphism group, 
