@@ -42,6 +42,8 @@ def test_with_checkpoint(config: OGBTestingConfiguration, checkpoint_path: str, 
     else:
         data_config = saved_config.data
 
+    data_config.data_folder = hydra.utils.to_absolute_path(data_config.data_folder)
+
     dataset_key = tuple(saved_config.model.path_lengths), saved_config.model.path_depth
 
     if dataset_key not in dataset_cache:

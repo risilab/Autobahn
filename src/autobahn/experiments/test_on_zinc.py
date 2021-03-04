@@ -57,7 +57,9 @@ def test_with_checkpoint(config: ZincTestingConfiguration, checkpoint_path: str,
     if config.override_data_config:
         data_config = config.data
     else:
-        data_config= saved_config.data
+        data_config = saved_config.data
+
+    data_config.data_folder = hydra.utils.to_absolute_path(data_config.data_folder)
 
     path_lengths, cycle_lengths = train_combo_on_zinc._expand_to_default(saved_config.model.path_lengths, saved_config.model.cycle_lengths)
     dataset_key = tuple(path_lengths), tuple(cycle_lengths)
