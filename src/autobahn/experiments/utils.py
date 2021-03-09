@@ -127,9 +127,13 @@ def list_checkpoints(path: str) -> Dict[str, List[str]]:
     Parameters
     ----------
     path : str
-        Path to output folder of pytorch-lightning training run.
+        Path to output folder of pytorch-lightning training run, or path to a single
+        checkpoint
     """
     result = {}
+
+    if os.path.isfile(path):
+        return {'0': path}
 
     base_path = os.path.join(path, 'lightning_logs')
     versions = os.listdir(base_path)

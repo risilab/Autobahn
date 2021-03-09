@@ -3,9 +3,8 @@
 import dataclasses
 import pickle
 
-from typing import Dict
+from typing import Dict, Optional
 
-import omegaconf
 import hydra
 from hydra.core.config_store import ConfigStore
 import pytorch_lightning
@@ -17,11 +16,12 @@ from torch_geometric.transforms import Compose
 from autobahn.transform import Pathifier, Cyclifier, OGBTransform
 from autobahn.experiments.data import OGBDataModule
 from autobahn.experiments import combo_models, utils
+from .pretrained_checkpoints import download_pretrained_checkpoint
 
 
 @dataclasses.dataclass
 class OGBTestingConfiguration:
-    folder: str = omegaconf.MISSING
+    checkpoint: Optional[str] = None
     batch_size: int = 256
     data: combo_models.OGBDatasetConfiguration = dataclasses.field(default_factory=combo_models.OGBDatasetConfiguration)
     override_data_config: bool = False
@@ -71,7 +71,10 @@ def train_with_conf(config: OGBTestingConfiguration):
         kwargs['precision'] = 16
 
     trainer = pytorch_lightning.Trainer(gpus=1, **kwargs)
-    checkpoints_by_version = utils.list_checkpoints(config.folder)
+
+    if config.checkpoint is None:
+        config.checkpoint = download_pretrained_checkpoint(config.data, './checkpoints')
+    checkpoints_by_version = utils.list_checkpoints(config.checkpoint)
 
     dataset_cache = {}
 

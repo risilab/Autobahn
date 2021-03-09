@@ -3,9 +3,8 @@
 import dataclasses
 import pickle
 
-from typing import Dict
+from typing import Dict, Optional
 
-import omegaconf
 import hydra
 from hydra.core.config_store import ConfigStore
 import pytorch_lightning
@@ -17,6 +16,7 @@ from torch_geometric.transforms import Compose
 from autobahn.transform import Pathifier, Cyclifier
 from autobahn.experiments.data import ZincDataModule
 from autobahn.experiments import combo_models, utils, train_combo_on_zinc
+from .pretrained_checkpoints import download_pretrained_checkpoint
 
 
 @dataclasses.dataclass
@@ -38,7 +38,7 @@ class ZincTestingConfiguration:
     mixed_precision : bool
         Use mixed-precision evaluation
     """
-    folder: str = omegaconf.MISSING
+    checkpoint: Optional[str] = None
     batch_size: int = 1024
     data: combo_models.ZincDatasetConfiguration = dataclasses.field(default_factory=combo_models.ZincDatasetConfiguration)
     override_data_config: bool = False
@@ -89,7 +89,11 @@ def train_with_conf(config: ZincTestingConfiguration):
         kwargs['precision'] = 16
 
     trainer = pytorch_lightning.Trainer(gpus=1, **kwargs)
-    checkpoints_by_version = utils.list_checkpoints(config.folder)
+
+    if config.checkpoint is None:
+        config.checkpoint = download_pretrained_checkpoint(config.data, hydra.utils.to_absolute_path('./checkpoints'))
+
+    checkpoints_by_version = utils.list_checkpoints(hydra.utils.to_absolute_path(config.checkpoint))
 
     dataset_cache = {}
 

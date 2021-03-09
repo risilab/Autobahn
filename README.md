@@ -36,3 +36,31 @@ and run the model.
 python -um autobahn.experiments.train_combo_on_zinc dataset=zinc_subset model=subset_128
 ```
 
+Pre-trained models
+==================
+
+We provide pre-trained models for the datasets studied in the paper at the links below. After downloading a checkpoint for a given dataset,
+you may test the downloaded model by running:
+```{bash}
+python -um autobahn.experiments.test_combo_on_zinc checkpoint=/path/to/your/checkpoint
+```
+
+Alternatively, the testing scripts will automatically download a checkpoint from our website if none is specified.
+You can then specify the dataset configuration to select which dataset to test on. For example, to test on zinc subset
+run the following command:
+```{bash}
+python -um autobahn.experiments.test_on_zinc data.use_subset=True
+```
+and to test on molpcba use the following command:
+```{bash}
+python -um autobahn.experiments.test_on_ogb data.data_name=ogbg-molpcba
+```
+
+| Dataset | Checkpoint |
+|---------|------------|
+| Zinc (subset) | [Checkpoint](https://users.flatironinstitute.org/~wzhou/autobahn/checkpoints/zinc_subset.ckpt) |
+| Zinc (full)   | [Checkpoint](https://users.flatironinstitute.org/~wzhou/autobahn/checkpoints/zinc_full.ckpt)   |
+| ogb-molpcba   | [Checkpoint](https://users.flatironinstitute.org/~wzhou/autobahn/checkpoints/molpcba.ckpt)     |
+| ogb-molmuv    | [Checkpoint](https://users.flatironinstitute.org/~wzhou/autobahn/checkpoints/molmuv.ckpt)      |
+| ogb-molhiv    | [Checkpoint](https://users.flatironinstitute.org/~wzhou/autobahn/checkpoints/molhiv.ckpt)      |
+
