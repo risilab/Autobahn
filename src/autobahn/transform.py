@@ -9,13 +9,13 @@ from autobahn.utils import mol_from_data
 
 
 class JunctionTreeData(Data):
-    def __inc__(self, key, item):
+    def __inc__(self, key, item, *args, **kwargs):
         if key == 'tree_edge_index':
             return self.x_clique.size(0)
         elif key == 'atom2clique_index':
             return torch.tensor([[self.x.size(0)], [self.x_clique.size(0)]])
         else:
-            return super(JunctionTreeData, self).__inc__(key, item)
+            return super(JunctionTreeData, self).__inc__(key, item, *args, **kwargs)
 
 
 class JunctionTree(object):
@@ -53,7 +53,7 @@ A2C_PATH_KEYS = tuple(["atom2clique_%d_path" % k for k in KEPT_PATHS])
 
 
 class PathData(Data):
-    def __inc__(self, key, item):
+    def __inc__(self, key, item, *args, **kwargs):
         if key in A2C_PATH_KEYS:
             n_atoms = self.x.size(0)
             total_path_positions = item.size(1)
@@ -63,16 +63,16 @@ class PathData(Data):
             total_cycle_positions = item.size(1)
             return torch.tensor([[n_atoms], [total_cycle_positions]])
         else:
-            return super(PathData, self).__inc__(key, item)
+            return super(PathData, self).__inc__(key, item, *args, **kwargs)
 
-    def __cat_dim__(self, key, item):
+    def __cat_dim__(self, key, item, *args, **kwargs):
         # print(key, key in A2C_KEYS, A2C_KEYS)
         if key in A2C_PATH_KEYS:
             return -1
         elif key in A2C_KEYS:
             return -1
         else:
-            return super(PathData, self).__cat_dim__(key, item)
+            return super(PathData, self).__cat_dim__(key, item, *args, **kwargs)
 
 
 @dataclasses.dataclass(frozen=True)

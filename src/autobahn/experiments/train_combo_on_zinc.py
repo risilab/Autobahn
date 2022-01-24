@@ -1,7 +1,6 @@
 """Module for training path + cycle model on Zinc dataset."""
 
 import hydra
-from hydra.core.config_store import ConfigStore
 import torch
 import torch.optim
 import torch
@@ -12,10 +11,6 @@ import autobahn.transform
 from autobahn.transform import Pathifier, Cyclifier
 from autobahn.experiments.data import ZincDataModule
 from autobahn.experiments import combo_models, utils
-
-
-cs = ConfigStore()
-cs.store(name='config_zinc', node=combo_models.ZincTrainingConfiguration)
 
 
 def _expand_to_default(path_lengths, cycle_lengths):
@@ -49,4 +44,7 @@ def train_with_conf(config: combo_models.ZincTrainingConfiguration):
 
 
 if __name__ == '__main__':
+    from hydra.core.config_store import ConfigStore
+    cs = ConfigStore()
+    cs.store(name='base_config_zinc', node=combo_models.ZincTrainingConfiguration)
     train_with_conf()

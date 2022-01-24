@@ -93,13 +93,14 @@ def make_trainer(config: TrainerConfiguration, monitor_loss='val_loss', monitor_
     ensure_config_defaults(config)
 
     callbacks = [
-        pytorch_lightning.callbacks.GPUStatsMonitor(intra_step_time=True),
         pytorch_lightning.callbacks.LearningRateMonitor(),
         pytorch_lightning.callbacks.ModelCheckpoint(monitor=monitor_loss, mode=monitor_mode),
         #AutogradProfilerCallback(profile_idx=10),
     ]
 
-    kwargs = {}
+    kwargs = {
+        'log_every_n_steps': 10,
+    }
 
     if config.optim.gradient_clip_norm is not None:
         kwargs['gradient_clip_val'] = config.optim.gradient_clip_norm
@@ -115,7 +116,6 @@ def make_trainer(config: TrainerConfiguration, monitor_loss='val_loss', monitor_
         default_root_dir=config.output_folder,
         callbacks=callbacks,
         max_epochs=config.max_epochs,
-        progress_bar_refresh_rate=5,
         **kwargs)
 
     return trainer

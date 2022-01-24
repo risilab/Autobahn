@@ -3,12 +3,12 @@ from typing import List, Optional, Sequence
 
 import ogb.graphproppred
 import pytorch_lightning
-import pytorch_lightning.metrics
 import torch
 import torch.nn.functional
 import torch.optim
 import torch_geometric
 import torch_geometric.data
+import torchmetrics
 
 from autobahn.pathnet import PathAndCycleNet
 from autobahn.experiments.data import OGBDatasetConfiguration
@@ -113,13 +113,13 @@ class OGBPathAndCycleModel(pytorch_lightning.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self._compute_loss(batch)['loss']
-        self.log('train_loss', loss, prog_bar=False)
+        self.log('train_loss', loss, prog_bar=False, batch_size=self.hparams.batch_size)
         return self._compute_loss(batch)
 
     def validation_step(self, batch, batch_idx):
         loss = self._compute_loss(batch)
         self.metric(loss['preds'], loss['targets'])
-        self.log('val_loss', loss['loss'], prog_bar=True, sync_dist=True)
+        self.log('val_loss', loss['loss'], prog_bar=True, sync_dist=True, batch_size=self.hparams.batch_size)
         return loss
 
     def validation_epoch_end(self, outputs):
@@ -128,7 +128,7 @@ class OGBPathAndCycleModel(pytorch_lightning.LightningModule):
     def test_step(self, batch, batch_idx):
         loss = self._compute_loss(batch)
         self.metric(loss['preds'], loss['targets'])
-        self.log('test_loss', loss['loss'], sync_dist=True)
+        self.log('test_loss', loss['loss'], sync_dist=True, batch_size=self.hparams.batch_size)
         return loss
 
     def test_epoch_end(self, outputs) -> None:
@@ -149,11 +149,11 @@ class OGBPathAndCycleModel(pytorch_lightning.LightningModule):
         )
         return [optimizer], [scheduler]
 
-    def transfer_batch_to_device(self, batch, device: Optional[torch.device]=None):
+    def transfer_batch_to_device(self, batch, device: torch.device, dataloader_idx: int):
         if isinstance(batch, torch_geometric.data.Batch):
             return batch.to(device)
         else:
-            return super().transfer_batch_to_device(batch, device)
+            return super().transfer_batch_to_device(batch, device, dataloader_idx)
 
     @property
     def eval_metric(self) -> str:
@@ -161,7 +161,7 @@ class OGBPathAndCycleModel(pytorch_lightning.LightningModule):
         return self.metric.eval_metric
 
 
-class OGBMetric(pytorch_lightning.metrics.Metric):
+class OGBMetric(torchmetrics.Metric):
     preds: List[torch.Tensor]
     target: List[torch.Tensor]
 
@@ -222,17 +222,17 @@ class ZincPathAndCycleModel(pytorch_lightning.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self._compute_loss(batch)
-        self.log('loss', loss, sync_dist=True)
+        self.log('loss', loss, sync_dist=True, batch_size=self.hparams.batch_size)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self._compute_loss(batch)
-        self.log('val_loss', loss, prog_bar=True, sync_dist=True)
+        self.log('val_loss', loss, prog_bar=True, sync_dist=True, batch_size=self.hparams.batch_size)
         return loss
 
     def test_step(self, batch, batch_idx):
         loss = self._compute_loss(batch)
-        self.log('test_loss', loss, sync_dist=True)
+        self.log('test_loss', loss, sync_dist=True, batch_size=self.hparams.batch_size)
         return loss
 
     def configure_optimizers(self):
@@ -251,8 +251,8 @@ class ZincPathAndCycleModel(pytorch_lightning.LightningModule):
 
         return [optimizer], [scheduler]
 
-    def transfer_batch_to_device(self, batch, device: Optional[torch.device]=None):
+    def transfer_batch_to_device(self, batch, device: torch.device, dataloader_idx: int):
         if isinstance(batch, torch_geometric.data.Batch):
             return batch.to(device)
         else:
-            return super().transfer_batch_to_device(batch, device)
+            return super().transfer_batch_to_device(batch, device, dataloader_idx)

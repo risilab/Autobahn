@@ -4,8 +4,9 @@ import functools
 from typing import Tuple
 
 import torch
+import torch_geometric.loader
 import pytorch_lightning
-from autobahn.datasets import ZINC, PygGraphPropPredDataset, Collater
+from autobahn.datasets import ZINC, PygGraphPropPredDataset
 
 
 #  ~~~~~~~~~~~~~~~~~~~~ Basec Classes ~~~~~~~~~~~~~~~~~~~~  #
@@ -33,8 +34,8 @@ class DataModule(pytorch_lightning.LightningDataModule):
         raise NotImplementedError
 
     def _make_dataloader(self, dataset, shuffle):
-        return torch.utils.data.DataLoader(
-            dataset, collate_fn=Collater(), batch_size=self.batch_size,
+        return torch_geometric.loader.DataLoader(
+            dataset, batch_size=self.batch_size,
             shuffle=shuffle, num_workers=self.num_workers, persistent_workers=self.num_workers > 0)
 
     def train_dataloader(self):

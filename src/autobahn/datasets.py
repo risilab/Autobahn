@@ -16,6 +16,7 @@ import torch.utils.data
 import torch.multiprocessing
 import torch_geometric.data
 import torch_geometric.datasets
+import torch_geometric.loader
 import tqdm
 
 from autobahn.transform import PathData
@@ -79,33 +80,6 @@ def _load_dataset(path, mmap_mode=None, as_torch_tensors=True) -> Tuple[torch_ge
     return data_class.from_dict(data_dict), slices_dict
 
 
-def _stack_with_zero(v):
-    if isinstance(v[1], int):
-        return torch.tensor(v)
-    else:
-        return torch.stack([torch.zeros_like(v[1])] + v[1:])
-
-class Collater(torch_geometric.data.dataloader.Collater):
-    """Implement custom collater which erases a problematic unoptimized field.
-    """
-    def __init__(self, follow_batch=(), keep_cumsum=False):
-        self.follow_batch = follow_batch
-        self.keep_cumsum = keep_cumsum
-
-    def collate(self, batch):
-        result = super(Collater, self).collate(batch)
-        if isinstance(result, torch_geometric.data.Batch):
-            # erase problematic field
-            if self.keep_cumsum:
-                result.__cumsum__ = {k: _stack_with_zero(v) for k, v in result.__cumsum__.items()}
-            else:
-                result.__cumsum__ = None
-        return result
-
-    def __call__(self, batch):
-        return self.collate(batch)
-
-
 class TensorSliceDataset(torch.utils.data.Dataset):
     """Thin wrapper over a pair of data and slices viewed as a dataset."""
     def __init__(self, data, slices: Dict[str, torch.Tensor]):
@@ -154,9 +128,9 @@ def _process_dataset_pretransform_torch(process_fn, data, num_workers=None):
     if num_workers is None:
         num_workers = len(os.sched_getaffinity(0))
 
-    dataloader = torch.utils.data.dataloader.DataLoader(
+    dataloader = torch_geometric.loader.DataLoader(
         dataset=TransformDataset(data, process_fn),
-        batch_size=16, shuffle=False, collate_fn=Collater(keep_cumsum=True),
+        batch_size=16, shuffle=False,
         num_workers=num_workers, prefetch_factor=1)
 
     result = tqdm.tqdm(dataloader)
