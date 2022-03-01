@@ -22,7 +22,8 @@ def train_with_conf(config: combo_models.OGBTrainingConfiguration):
 
     torch.manual_seed(config.seed)
     transform = Compose([OGBTransform(), Pathifier(list(config.model.path_lengths)), Cyclifier(list(config.model.cycle_lengths))])
-    dataset = OGBDataModule(config.data, transform=transform, batch_size=config.batch_size // config.num_gpus)
+    batch_split = max(config.num_gpus, 1)
+    dataset = OGBDataModule(config.data, transform=transform, batch_size=config.batch_size // batch_split)
 
     dataset.prepare_data()
     dataset.setup()

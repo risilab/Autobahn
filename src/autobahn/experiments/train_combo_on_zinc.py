@@ -32,7 +32,8 @@ def train_with_conf(config: combo_models.ZincTrainingConfiguration):
     path_lengths, cycle_lengths = _expand_to_default(config.model.path_lengths, config.model.cycle_lengths)
 
     transform = Compose([Pathifier(path_lengths), Cyclifier(cycle_lengths)])
-    dataset = ZincDataModule(config.data, transform=transform, batch_size=config.batch_size // config.num_gpus)
+    batch_split = max(config.num_gpus, 1)
+    dataset = ZincDataModule(config.data, transform=transform, batch_size=config.batch_size // batch_split)
 
     dataset.prepare_data()
     dataset.setup()
